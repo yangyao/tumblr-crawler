@@ -11,7 +11,7 @@ class Crawler {
     public $client = null;
     public $blog_name = null;
     public $blog_url = 'http://api.tumblr.com/v2/blog/';
-    public $api_key = 'Mb7WjvbkfI94YKEE8VkSod97c3naKdDrbirlbXelxGI9we4ufF';
+    public $api_key = 'null';
     public $concurrency = 10;
     public $page = 10;
     public $type = 'video';
