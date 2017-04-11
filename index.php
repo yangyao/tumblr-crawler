@@ -9,5 +9,5 @@ $api_key = $configuration['API_KEY'];
 $cache = new Secache();
 $cache->workat('cachedata');
 $path = __DIR__."/blog/";
-$crawler = new Crawler($cache, $path,  $api_key,'sex8sex','photo');
+$crawler = new Crawler($cache, $path,  $api_key,'pug-of-war','photo');
 $crawler->fetch();

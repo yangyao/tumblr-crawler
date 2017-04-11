@@ -1,7 +1,17 @@
 {
-    "require": {
-        "guzzlehttp/guzzle": "^6.2"
-    },
+  "name": "yangyao/tumblr-crawler",
+  "description": "yet another tumblr crawler",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "yangyao",
+      "email": "yangyaoapp@outlook.com"
+    }
+  ],
+  "require": {
+    "guzzlehttp/guzzle": "^6.2"
+  },
   "autoload": {
     "psr-4": {
       "Yangyao\\Tumblr\\": "src/tumblr"
