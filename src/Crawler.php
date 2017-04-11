@@ -63,6 +63,7 @@ class Crawler {
                 echo "rejected" ;
                 echo "rejected reason: " . $reason ;
             },
+            // if you don't wait the queue will not run that's weird
         ]))->promise()->wait();
     }
 
@@ -80,6 +81,7 @@ class Crawler {
     }
 
     public function dispatcher(ResponseInterface $response){
+        /** @var callable $processor */
         $processor = Factory::map($this->config->get('type'));
         return (new $processor($response))->process($this->config->get('blog'), $this->path);
     }
