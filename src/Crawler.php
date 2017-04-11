@@ -5,52 +5,50 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Promise\EachPromise;
 use Psr\Http\Message\ResponseInterface;
 use Yangyao\Tumblr\Cache\Secache;
+use GuzzleHttp\Promise\FulfilledPromise;
 
 class Crawler {
 
     public $client = null;
-    public $blog_name = null;
     public $blog_url = 'http://api.tumblr.com/v2/blog/';
-    public $api_key = 'null';
     public $concurrency = 10;
     public $page = 10;
-    public $type = 'video';
     public $cache = null;
+    public $config = null;
     public $links = [];
 
-    public function __construct(Secache $cache, $path,  $api_key, $blog_name, $type){
+    public function __construct(Config $config){
+        $this->config = $config;
+        $this->cache = new Secache();
         $this->client = new Client();
-        $this->type = $type;
-        $this->blog_name = $blog_name;
-        $this->api_key = $api_key;
-        $this->cache = $cache;
-        $this->path = $path;
+        $this->cache->workat($config->get('cache_path','cache'));
+        $this->path = $config->get('save_path',__DIR__."/../blog/");
+        $this->page = $config->get('page',10);
     }
 
     public function fetch(){
         $promises = function ()  {
             for ($page = 1; $page <= $this->page; $page ++) {
-                $link = $this->blog_url
-                    . $this->blog_name
-                    . ".tumblr.com/posts/"
-                    . $this->type
-                    . "?api_key="
-                    . $this->api_key
-                    . "&limit=20"
-                    . "&offset="
-                    . $page * 20;
+                $link = $this->_link($page);
                 $this->links[] = $link;
                 $this->cache->fetch(md5($link),$data);
                 if($data !== 1) {
-                    yield $this->client->requestAsync('GET',$link,['verify' => false,'proxy' => 'http://127.0.0.1:1080','timeout'=>120])
-                        ->then(
+                    yield $this->client->requestAsync(
+                        'GET',
+                        $link,
+                        [
+                            'verify' => false,
+                            'proxy' => $this->config->get('proxy'),
+                            'timeout'=>$this->config->get('timeout')
+                        ]
+                    )->then(
                             function(ResponseInterface $response) use ($link) {
                                 $this->cache->store(md5($link),1);
                                 return $response;
                             }
                         );
                 }else{
-                    yield new \GuzzleHttp\Promise\FulfilledPromise(1);
+                    yield new FulfilledPromise(1);
                 }
             }
         };
@@ -62,15 +60,28 @@ class Crawler {
                 }
             },
             'rejected' => function ($reason,$index){
-                //echo "rejected" ;
-                //echo "rejected reason: " . $reason ;
+                echo "rejected" ;
+                echo "rejected reason: " . $reason ;
             },
         ]))->promise()->wait();
     }
 
+    private function _link($page){
+        $link = $this->blog_url
+            . $this->config->get('blog')
+            . ".tumblr.com/posts/"
+            . $this->config->get('type')
+            . "?api_key="
+            . $this->config->get('api_key')
+            . "&limit=20"
+            . "&offset="
+            . $page * 20;
+        return $link;
+    }
+
     public function dispatcher(ResponseInterface $response){
-        $processor = Factory::map($this->type);
-        return (new $processor($response))->process($this->blog_name, $this->path);
+        $processor = Factory::map($this->config->get('type'));
+        return (new $processor($response))->process($this->config->get('blog'), $this->path);
     }
 
 

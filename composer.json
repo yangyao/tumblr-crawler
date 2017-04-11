@@ -10,11 +10,12 @@
     }
   ],
   "require": {
-    "guzzlehttp/guzzle": "^6.2"
+    "guzzlehttp/guzzle": "^6.2",
+    "illuminate/support": "~5.1|~5.2|~5.3|~5.4"
   },
   "autoload": {
     "psr-4": {
-      "Yangyao\\Tumblr\\": "src/tumblr"
+      "Yangyao\\Tumblr\\": "src"
     }
   }
 }
